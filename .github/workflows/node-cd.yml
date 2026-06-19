@@ -1,0 +1,40 @@
+name: Node.js CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'backend/**' # 🌟 รันเฉพาะเมื่อมีการแก้โค้ดในโฟลเดอร์ backend เท่านั้น
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'backend/**'
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    
+    // 🌟 บังคับให้ทุกขั้นตอนด้านล่างรันคำสั่งภายในโฟลเดอร์ backend
+    defaults:
+      run:
+        working-directory: ./backend 
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Install Dependencies
+      run: npm install
+
+    # เปิดใช้งานหากในโปรเจกต์มีการเขียนไฟล์สำหรับรัน Test ไว้
+    # - name: Run Tests
+    #   run: npm test 
+
+    - name: Deploy to Render
+       if: github.event_name == 'push'
+       run: curl -X GET "https://api.render.com/deploy/srv-d8jslm4vikkc7387sgj0?key=a0kBkwvod6c"
