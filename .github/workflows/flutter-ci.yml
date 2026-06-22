@@ -14,7 +14,7 @@ jobs:
   flutter-ci:
     runs-on: ubuntu-latest
     
-    // 🌟 บังคับให้ทุกขั้นตอนด้านล่างรันคำสั่งภายในโฟลเดอร์ mobile
+    # 🌟 บังคับให้ทุกขั้นตอนด้านล่างรันคำสั่งภายในโฟลเดอร์ mobile
     defaults:
       run:
         working-directory: ./mobile 
