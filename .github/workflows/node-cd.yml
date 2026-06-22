@@ -4,7 +4,7 @@ on:
   push:
     branches: [ main ]
     paths:
-      - 'backend/**' # 🌟 รันเฉพาะเมื่อมีการแก้โค้ดในโฟลเดอร์ backend เท่านั้น
+      - 'backend/**'
   pull_request:
     branches: [ main ]
     paths:
@@ -14,7 +14,7 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
     
-    // 🌟 บังคับให้ทุกขั้นตอนด้านล่างรันคำสั่งภายในโฟลเดอร์ backend
+    # 🌟 บังคับให้รันคำสั่งในโฟลเดอร์ backend (เปลี่ยนจาก // เป็น # แล้วครับ)
     defaults:
       run:
         working-directory: ./backend 
@@ -31,10 +31,7 @@ jobs:
     - name: Install Dependencies
       run: npm install
 
-    # เปิดใช้งานหากในโปรเจกต์มีการเขียนไฟล์สำหรับรัน Test ไว้
-    # - name: Run Tests
-    #   run: npm test 
-
     - name: Deploy to Render
-       if: github.event_name == 'push'
-       run: curl -X GET "https://api.render.com/deploy/srv-d8jslm4vikkc7387sgj0?key=a0kBkwvod6c"
+      if: github.event_name == 'push'
+      # ⚠️ อย่าลืมเอาลิงก์ Deploy Hook ของ Render มาใส่บรรทัดล่างนี้แทนที่นะครับ
+      run: curl -X GET "https://api.render.com/deploy/srv-xxxxxxxxxxxx?key=xxxxxxxxxxxx"
