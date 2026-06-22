@@ -1,4 +1,4 @@
-# 🏥 Geo-Health Tracker — Full Stack (Demo)
+# 🏥 Geo-Health Tracker — Full Stack
 
 ระบบติดตามโรคเชิงพื้นที่สำหรับ อสม. สอดคล้อง PDPA 2562
 
