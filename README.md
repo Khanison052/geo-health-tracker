@@ -1,18 +1,23 @@
-# 🏥 Geo-Health Tracker — Full Stack
+# 🏥 Geo-Health Tracker — Enterprise Edition
 
-ระบบติดตามโรคเชิงพื้นที่สำหรับ อสม. สอดคล้อง PDPA 2562
+ระบบติดตามและเฝ้าระวังสุขภาพชุมชนเชิงพื้นที่แบบเรียลไทม์ สำหรับ อสม. รพ.สต. และผู้บริหาร สอดคล้องตาม พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล (PDPA 2562) พร้อมระบบวิเคราะห์การระบาด (Automated Ring Strategy)
 
-## 📁 โครงสร้างโปรเจกต์
+## 📁 โครงสร้างโปรเจกต์ (Monorepo)
 
-```
+```text
 geo-health-tracker/
+├── .github/
+│   └── workflows/
+│       └── node-cd.yml      ← ระบบ CI/CD (GitHub Actions) สำหรับ Auto-Deploy
 ├── backend/
-│   ├── server.js        ← Node.js + Express API (Demo mode)
-│   ├── schema.sql       ← PostgreSQL + PostGIS database schema
+│   ├── server.js            ← Node.js + Express API (Production on Render.com)
+│   ├── schema.sql           ← PostgreSQL + PostGIS database schema
 │   └── package.json
 └── mobile/
-    └── lib/
-        └── main.dart    ← Flutter app (iOS + Android)
+    ├── lib/
+    │   ├── src/             
+    │   └── main.dart        ← Flutter app (iOS + Android + Web)
+    └── pubspec.yaml
 ```
 
 ## 🛠️ Tech Stack
@@ -66,20 +71,22 @@ curl "http://localhost:3001/api/vulnerable/nearby?lat=14.9798&lng=102.0978&radiu
 
 ## 🗄️ Database Setup (Production)
 
+## 🚀 การ Deploy และรัน Backend API (Production)
+
+ระบบปัจจุบันถูกออกแบบสถาปัตยกรรมมารองรับการทำงานบนคลาวด์ (เช่น Render.com) โดยมีระบบ CI/CD Pipeline ควบคุมการ Deploy อัตโนมัติ
+
+**แบบที่ 1: การอัปเดตระบบขึ้น Cloud (Auto-Deploy ผ่าน CI/CD)**
+เมื่อมีการแก้ไขโค้ดฝั่ง `backend/` ให้ทำตามขั้นตอนดังนี้:
 ```bash
-# 1. ติดตั้ง PostgreSQL + PostGIS
-sudo apt install postgresql postgresql-contrib postgis
+# 1. บันทึกการเปลี่ยนแปลง
+git add .
+git commit -m "Update backend features"
 
-# 2. สร้างฐานข้อมูล
-psql -U postgres -c "CREATE DATABASE geohealth;"
-psql -U postgres -c "GRANT ALL PRIVILEGES ON DATABASE geohealth TO geohealth_user;"
-
-# 3. รัน schema
-psql -U postgres -d geohealth -f backend/schema.sql
-
-# 4. ทดสอบ PostGIS function (ค้นหากลุ่มเปราะบางในรัศมี 100 เมตร)
-psql -U postgres -d geohealth -c "SELECT * FROM fn_get_vulnerable_nearby(14.9798, 102.0978, 100);"
+# 2. อัปโหลดขึ้น GitHub (สาขา main)
+git push origin main
 ```
+Note: ระบบ GitHub Actions จะทำการตรวจสอบโค้ด และส่ง Webhook ไปกระตุ้นให้เซิร์ฟเวอร์คลาวด์ดึงโค้ดชุดใหม่ไปติดตั้งและรัน (npm install -> node server.js) โดยอัตโนมัติแบบ Zero Downtime
+
 
 ---
 
@@ -95,12 +102,6 @@ cd mobile
 
 flutter pub get
 flutter run
-```
-
-**Android**: เพิ่ม Google Maps API Key ใน `android/app/src/main/AndroidManifest.xml`:
-```xml
-<meta-data android:name="com.google.android.geo.API_KEY"
-           android:value="YOUR_GOOGLE_MAPS_API_KEY"/>
 ```
 
 ---
@@ -127,14 +128,24 @@ LINE_GROUP_ID=your_line_group_id  # กลุ่ม LINE ทีม SRRT
 ```javascript
 // server.js: แทนที่ mock ด้วย API จริง
 const axios = require('axios');
-async function sendLineAlert(patient, nearby) {
-  await axios.post('https://api.line.me/v2/bot/message/push', {
-    to: process.env.LINE_GROUP_ID,
-    messages: [{
-      type: 'text',
-      text: `🚨 พบผู้ป่วยใหม่\nชื่อ: ${patient.name}\nโรค: ${patient.disease_name}\nพิกัด: ${patient.lat}, ${patient.lng}\n\n⚠️ กลุ่มเปราะบาง ${nearby.length} รายอยู่ในรัศมี 100 เมตร`
-    }]
-  }, { headers: { Authorization: `Bearer ${process.env.LINE_CHANNEL_TOKEN}` } });
+
+async function sendLineAlert(message) {
+  const token = process.env.LINE_NOTIFY_TOKEN;
+  if (!token) return;
+
+  try {
+    const params = new URLSearchParams();
+    params.append('message', `\n${message}`); 
+
+    await axios.post('[https://notify-api.line.me/api/notify](https://notify-api.line.me/api/notify)', params, { 
+      headers: { 
+        'Content-Type': 'application/x-www-form-urlencoded', 
+        'Authorization': `Bearer ${token}` 
+      } 
+    });
+  } catch (error) {
+    console.error('❌ ส่งแจ้งเตือน LINE พลาด:', error.message);
+  }
 }
 ```
 
@@ -142,9 +153,12 @@ async function sendLineAlert(patient, nearby) {
 
 ## 📝 Roadmap สู่ Production
 
-- [ ] เชื่อม PostgreSQL + PostGIS จริง (แทน mock data)
-- [ ] ใส่ JWT Authentication (login อสม.)
-- [ ] เชื่อม LINE Messaging API จริง
-- [ ] เพิ่ม Offline Mode (SQLite local + sync เมื่อมีสัญญาณ)
-- [ ] Deploy บน Docker + nginx (เซิร์ฟเวอร์กระทรวงสาธารณสุข)
-- [ ] PDPA Encryption middleware
+- [x] เชื่อม PostgreSQL + PostGIS บน Cloud จริง
+- [x] ระบบ JWT Authentication & RBAC (Admin, Hospital, Volunteer)
+- [x] แจ้งเตือน LINE (เปลี่ยนเป็น LINE Notify เพื่อแก้ปัญหาโควต้าเต็ม)
+- [x] อัปเกรดแผนที่เป็น OpenStreetMap (flutter_map) ทะลุข้อจำกัด Web Proxy
+- [x] เพิ่มระบบคัดกรองจิตเวช (SMI V-SCAN, OAS) แบบครบวงจร
+- [x] วางระบบ CI/CD Pipeline ด้วย GitHub Actions Deploy ขึ้น Render.com
+- [x] ระบบ Export ข้อมูลผู้ป่วยและกลุ่มเปราะบางออกเป็นไฟล์ Excel
+- [ ] เพิ่ม Offline Mode (SQLite local + sync เมื่อมีสัญญาณอินเทอร์เน็ต)
+- [ ] เชื่อมต่อ API กับระบบฐานข้อมูลสาธารณสุขระดับประเทศ (HDC)
