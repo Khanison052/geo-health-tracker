@@ -667,6 +667,18 @@ app.get('/api/patients/export', async (req, res) => {
 
   } catch (error) {
     console.error('❌ Export Excel Error:', error.message);
+
+    // 🌟 ดักจับกรณี Token หมดอายุโดยเฉพาะ แล้วส่งเป็นหน้าเว็บ HTML สวยๆ ให้ผู้ใช้
+    if (error.name === 'TokenExpiredError') {
+      return res.status(401).send(`
+        <div style="text-align: center; font-family: sans-serif; margin-top: 50px;">
+          <h1 style="color: #E24B4A;">⚠️ เซสชันของคุณหมดอายุแล้ว</h1>
+          <p style="font-size: 18px; color: #555;">เพื่อความปลอดภัยของข้อมูล กรุณากลับไปที่แอปพลิเคชัน</p>
+          <p style="font-size: 18px; color: #555;">กด <b>"ออกจากระบบ"</b> และ <b>"เข้าสู่ระบบใหม่"</b> อีกครั้งครับ</p>
+        </div>
+      `);
+    }
+
     res.status(500).json({ error: 'ไม่สามารถส่งออกข้อมูลเป็น Excel ได้' });
   }
 });
