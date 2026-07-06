@@ -1711,10 +1711,51 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: const Center(child: CircularProgressIndicator(color: Color(0xFF1D9E75))),
               );
             } else if (snapshot.hasError) {
+              // 🌟 เปลี่ยน Error สีแดงน่ากลัว ให้เป็น UI ที่ดูเป็นมิตรและเข้าใจง่าย
               summaryCard = Container(
-                width: double.infinity, padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.grey.shade200)),
-                child: Text('ไม่สามารถโหลดข้อมูลสรุปได้: ${snapshot.error}', style: const TextStyle(color: Colors.red)),
+                width: double.infinity,
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.red.shade50, // พื้นหลังสีแดงอ่อนๆ ดูนุ่มนวล
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: Colors.red.shade100),
+                ),
+                child: Column(
+                  children: [
+                    const Icon(Icons.cloud_off_rounded, color: Colors.redAccent, size: 48),
+                    const SizedBox(height: 12),
+                    const Text(
+                      'ไม่สามารถเชื่อมต่อฐานข้อมูลได้',
+                      style: TextStyle(color: Colors.redAccent, fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 6),
+                    const Text(
+                      'ระบบเซิร์ฟเวอร์อาจกำลังปรับปรุงหรือขัดข้องชั่วคราว\nกรุณารอสักครู่แล้วกดปุ่มลองใหม่อีกครั้งครับ',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: Colors.black54, fontSize: 13, height: 1.4),
+                    ),
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      height: 40,
+                      child: OutlinedButton.icon(
+                        onPressed: () {
+                          // 🌟 กดปุ่มแล้วสั่งให้ดึงข้อมูลใหม่ทันที
+                          setState(() {
+                            _summaryFuture = fetchDashboardSummary();
+                            _alertsFuture = fetchAlerts();
+                          });
+                        },
+                        icon: const Icon(Icons.refresh, size: 18),
+                        label: const Text('ลองโหลดข้อมูลใหม่', style: TextStyle(fontWeight: FontWeight.w600)),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Colors.redAccent,
+                          side: const BorderSide(color: Colors.redAccent),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               );
             } else {
               final summary = snapshot.data!;
