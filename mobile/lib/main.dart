@@ -4,7 +4,7 @@
 // ═══════════════════════════════════════════════════════════════════
 
 import 'dart:convert';
-import 'dart:io';
+//import 'dart:io';
 import 'dart:ui'; // 🌟 เพิ่มบรรทัดนี้เพื่อเรียกใช้เอฟเฟกต์เบลอกระจก (ImageFilter)
 
 import 'package:url_launcher/url_launcher.dart';
@@ -17,7 +17,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'src/platform_api_host.dart';
+//import 'src/platform_api_host.dart';
 import 'package:flutter/gestures.dart';
 
 void main() {
@@ -1552,8 +1552,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   String _currentArea = 'กำลังค้นหาตำแหน่งปัจจุบัน...';
-  String? _assignedArea; // 🌟 1. เพิ่มตัวแปรใหม่เก็บพื้นที่รับผิดชอบจริง
-  String? _base64Image; 
+  //String? _assignedArea; // 🌟 1. เพิ่มตัวแปรใหม่เก็บพื้นที่รับผิดชอบจริง
+  //String? _base64Image; 
 
   // 🌟 1. เพิ่มตัวแปรเก็บ Future 2 ตัวนี้เข้ามาครับ
   late Future<HomeSummary> _summaryFuture;
@@ -1566,17 +1566,17 @@ class _HomeScreenState extends State<HomeScreen> {
     _summaryFuture = fetchDashboardSummary();
     _alertsFuture = fetchAlerts();
     _fetchCurrentLocation(); 
-    _loadProfileImage(); 
+    // _loadProfileImage(); 
   }
 
-  Future<void> _loadProfileImage() async {
+  /*Future<void> _loadProfileImage() async {
     final prefs = await SharedPreferences.getInstance();
     if (mounted) {
       setState(() {
         _base64Image = prefs.getString('profile_image_path');
       });
     }
-  }
+  }*/
 
   Future<void> _fetchCurrentLocation() async {
     try {
