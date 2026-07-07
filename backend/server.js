@@ -515,7 +515,13 @@ app.get('/api/stats/summary', async (req, res) => {
       total_patients: parseInt(summaryResult.rows[0].total_patients, 10) || 0,
     });
   } catch (error) {
-    res.status(500).json({ error: 'ไม่สามารถดึงสรุปสถิติได้' });
+    console.error("GET /api/stats/summary");
+    console.error(error);
+
+    res.status(500).json({
+      error: "ไม่สามารถดึงสรุปสถิติได้",
+      details: error.message
+    });
   }
 });
 
