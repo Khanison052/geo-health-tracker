@@ -634,11 +634,12 @@ class HomeSummary {
   factory HomeSummary.fromJson(Map<String, dynamic> json) {
     return HomeSummary(
       areaName: json['area_name']?.toString() ?? 'พื้นที่รับผิดชอบ',
-      newToday: json['new_today'] as int? ?? 0,
-      totalThisMonth: json['total_this_month'] as int? ?? 0,
-      vulnerableTotal: json['vulnerable_total'] as int? ?? 0,
-      totalPatients: json['total_patients'] as int? ?? 0,
-      diseaseTotal: json['disease_total'] as int? ?? 0,
+      // 🌟 แก้ไข: ใช้ int.tryParse() เพื่อดักจับกรณีที่ Database แอบส่งตัวเลขมาเป็นข้อความ (String)
+      newToday: int.tryParse(json['new_today']?.toString() ?? '0') ?? 0,
+      totalThisMonth: int.tryParse(json['total_this_month']?.toString() ?? '0') ?? 0,
+      vulnerableTotal: int.tryParse(json['vulnerable_total']?.toString() ?? '0') ?? 0,
+      totalPatients: int.tryParse(json['total_patients']?.toString() ?? '0') ?? 0,
+      diseaseTotal: int.tryParse(json['disease_total']?.toString() ?? '0') ?? 0,
     );
   }
 }
