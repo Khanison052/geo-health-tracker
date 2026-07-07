@@ -643,12 +643,23 @@ class HomeSummary {
   }
 }
 
+// 🌟 อัปเดต: เพิ่มการแนบ Token เพื่อให้ Backend ยอมส่งข้อมูลสถิติให้
 Future<HomeSummary> fetchDashboardSummary() async {
-  final response = await http.get(Uri.parse('$kApiBase/stats/summary'));
-  if (response.statusCode != 200) {
-    throw Exception('ไม่สามารถดึงสถิติเบื้องต้นได้');
+  try {
+    final headers = await _getAuthHeaders(); // 🌟 ดึง Token ของผู้ใช้
+    final response = await http.get(
+      Uri.parse('$kApiBase/stats/summary'), 
+      headers: headers, // 🌟 แนบ Token ไปกับ Request
+    );
+    
+    if (response.statusCode != 200) {
+      throw Exception('ไม่สามารถดึงสถิติเบื้องต้นได้ (Status: ${response.statusCode})');
+    }
+    return HomeSummary.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
+  } catch (e) {
+    debugPrint('fetchDashboardSummary error: $e');
+    rethrow;
   }
-  return HomeSummary.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
 }
 
 // ─── App Root ───────────────────────────────────────────────────────────────
