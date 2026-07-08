@@ -2349,7 +2349,7 @@ class _ReportPatientScreenState extends State<ReportPatientScreen> with SingleTi
       final parsedOccupation = _occupationCtrl.text.isEmpty ? null : _occupationCtrl.text;
       
       // 🌟 ดึง Token ของคนที่ล็อกอินอยู่
-      final _ = await AuthStorage.getToken(); 
+      // final _ = await AuthStorage.getToken(); 
       // 🌟 ดึง Headers ที่มี Authorization พร้อม Token ไว้ใช้กับ http.post
       final headers = await _getAuthHeaders(); 
 
