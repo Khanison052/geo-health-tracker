@@ -499,11 +499,20 @@ app.get('/api/stats/summary', async (req, res) => {
     if (villageResult.rowCount > 0) {
       const v = villageResult.rows[0];
       const popDisplay = v.population ? ` (ประชากร: ${new Intl.NumberFormat('th-TH').format(v.population)} คน)` : '';
-      if (v.province.includes('กรุงเทพ') || v.province.toLowerCase() === 'bangkok') {
-        let vName = (v.name_th && v.name_th !== v.tambon && v.name_th !== v.amphoe) ? `${v.name_th} ` : '';
-        areaName = `${vName}แขวง${v.tambon} เขต${v.amphoe} ${v.province}${popDisplay}`;
+      
+      // 🌟 1. ดักจับ NULL ให้กลายเป็น String ว่างก่อน เพื่อป้องกันแอปพัง (Cannot read properties of null)
+      const prov = v.province || ''; 
+      const nameTh = v.name_th || '';
+      const tam = v.tambon || '';
+      const amp = v.amphoe || '';
+      const moo = v.moo || '-';
+
+      // 🌟 2. ใช้ prov ตัวใหม่แทน v.province เพื่อให้ .includes ทำงานได้อย่างปลอดภัย 100%
+      if (prov.includes('กรุงเทพ') || prov.toLowerCase() === 'bangkok') {
+        let vName = (nameTh && nameTh !== tam && nameTh !== amp) ? `${nameTh} ` : '';
+        areaName = `${vName}แขวง${tam} เขต${amp} ${prov}${popDisplay}`;
       } else {
-        areaName = `บ้าน${v.name_th} ม.${v.moo} ต.${v.tambon} อ.${v.amphoe} จ.${v.province}${popDisplay}`;
+        areaName = `บ้าน${nameTh} ม.${moo} ต.${tam} อ.${amp} จ.${prov}${popDisplay}`;
       }
     }
 
