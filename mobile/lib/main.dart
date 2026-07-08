@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_import, use_build_context_synchronously, prefer_final_fields, deprecated_member_use, unnecessary_underscores
+
 // ═══════════════════════════════════════════════════════════════════
 // Geo-Health Tracker — Flutter Mobile App (Enterprise Edition)
 // สำหรับ: อสม. รพ.สต. และผู้บริหาร ใช้บันทึกผู้ป่วยและปักหมุดพิกัด GPS
