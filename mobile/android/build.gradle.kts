@@ -24,10 +24,10 @@ tasks.register<Delete>("clean") {
 }
 
 subprojects {
-    afterEvaluate { project ->
-        if (project.hasProperty('android')) {
-            project.android {
-                compileSdkVersion 36
+    afterEvaluate {
+        project.extensions.findByName("android")?.let { ext ->
+            if (ext is com.android.build.gradle.BaseExtension) {
+                ext.compileSdk = 36
             }
         }
     }
