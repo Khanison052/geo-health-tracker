@@ -483,7 +483,7 @@ app.delete('/api/patients/:id', verifyToken, async (req, res) => {
 
 // ─── DASHBOARD & MAPS ───
 
-app.get('/api/stats/summary', async (req, res) => {
+app.get('/api/stats/summary', verifyToken, async (req, res) => {
   try {
     const villageResult = await pool.query('SELECT id, moo, name_th, tambon, amphoe, province, population FROM villages ORDER BY id DESC LIMIT 1');
     const summaryResult = await pool.query(`

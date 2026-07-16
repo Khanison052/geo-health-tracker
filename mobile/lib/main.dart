@@ -1580,6 +1580,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _summaryFuture = fetchDashboardSummary();
     _alertsFuture = fetchAlerts();
     _fetchCurrentLocation(); 
+    _checkSession();
     // _loadProfileImage(); 
   }
 
@@ -1591,6 +1592,52 @@ class _HomeScreenState extends State<HomeScreen> {
       });
     }
   }*/
+
+  Future<void> _checkSession() async {
+    final token = await AuthStorage.getToken();
+    if (token != null) {
+      try {
+        final response = await http.get(
+          Uri.parse('$kApiBase/auth/verify'),
+          headers: {'Authorization': 'Bearer $token'},
+        );
+        
+        if (response.statusCode == 401 && mounted) {
+          await AuthStorage.clear(); // ล้างกุญแจเก่าที่หมดอายุทิ้ง
+          if (!mounted) return;
+          showDialog(
+            context: context,
+            barrierDismissible: false, // บังคับให้ต้องกดปุ่มเท่านั้น
+            builder: (ctx) => AlertDialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              title: const Row(children: [Icon(Icons.timer_off, color: Colors.redAccent, size: 28), SizedBox(width: 8), Text('เซสชันหมดอายุ', style: TextStyle(fontWeight: FontWeight.bold))]),
+              content: const Text('คุณไม่ได้เข้าใช้งานระบบนานเกิน 7 วัน เพื่อความปลอดภัยของข้อมูล กรุณาเข้าสู่ระบบใหม่อีกครั้งครับ', style: TextStyle(height: 1.4)),
+              actions: [
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF1D9E75), 
+                      foregroundColor: Colors.white, 
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      padding: const EdgeInsets.symmetric(vertical: 12)
+                    ),
+                    onPressed: () {
+                      Navigator.of(ctx).pop();
+                      Navigator.of(context).pushReplacementNamed('/login'); // เด้งกลับไปหน้า Login
+                    },
+                    child: const Text('เข้าสู่ระบบใหม่', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  ),
+                )
+              ]
+            )
+          );
+        }
+      } catch (_) {
+        // ปล่อยผ่านถ้ากรณีไม่มีสัญญาณอินเทอร์เน็ต
+      }
+    }
+  }
 
   Future<void> _fetchCurrentLocation() async {
     try {
